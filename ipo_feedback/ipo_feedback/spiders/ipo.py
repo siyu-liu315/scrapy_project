@@ -19,11 +19,11 @@ class IpoSpider(scrapy.Spider):
             title = stock.xpath("./text()").extract()[0]
             url = start_url+link[1:]
             yield scrapy.Request(url,callback=self.parse_download,meta={"title" : title, "add" : add})
-        #
-        # while page <= 10:
-        #     next_page = start_url + "/index_"+ str(page) + ".html"
-        #     page += 1
-        #     yield scrapy.Request(next_page, callback=self.parse)
+
+        while page <= 10:
+            next_page = start_url + "/index_"+ str(page) + ".html"
+            page += 1
+            yield scrapy.Request(next_page, callback=self.parse)
 
     def parse_download(self,response):
         start_url = "http://www.csrc.gov.cn/pub/newsite/fxjgb/scgkfxfkyj/"

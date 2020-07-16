@@ -13,7 +13,6 @@ class IndeedSpider(scrapy.Spider):
     # page &start = page*10 e.g https://www.indeed.com/jobs?q=data%20analyst&start=10
         for x in range(0,6):
            next_page = start_urls + str(x*10) + "#"
-           print(x)
            yield scrapy.Request(next_page,callback = self.parse)
 
     def parse(self, response):
@@ -22,6 +21,7 @@ class IndeedSpider(scrapy.Spider):
         JKs = response.xpath('//div[contains(@class,"jobsearch-SerpJobCard")]/@data-jk').extract()
         for JK in JKs:
             request = scrapy.Request(url=url % JK, callback=self.parse_indeed_results)
+            request.meta['url'] = url%JK
             request.meta['dont_redirect'] = True
             yield request
 
@@ -49,10 +49,12 @@ class IndeedSpider(scrapy.Spider):
         item['address'] = company_data[-1].strip()
 
     # DESCRIPTION
-    #         description = response.xpath('//div[contains(@id,"jobDescriptionText")]//text()').extract()
-    #         description = ' '.join(description)
-    #         item['description'] = description.replace("\n", "").encode('utf-8')
+        description = response.xpath('//div[contains(@id,"jobDescriptionText")]//text()').extract()
+        description = ' '.join(description)
+        item['description'] = description.replace("\n", "").encode('utf-8')
 
+    #URL
+        item['url'] = response.meta['url']
         yield item
 
 
